@@ -22,6 +22,8 @@ api_hash = os.getenv("API_HASH")
 client = TelegramClient("session_name", api_id, api_hash)
 client.start()
 
+IMAGE_PATH = "./images/preview.jpg"
+
 GREETING_POST = """
 🤝Благодарю за подписку!
 
@@ -46,10 +48,16 @@ async def getAllChannelUsers():
 
 
 @client.on(ChatAction)
-async def main(ev):
-    print(ev)
+async def listenUserJoinEvent(ev):
+    # print(ev) # log event if needed
     if isinstance(ev.original_update, UpdateChannelParticipant) and ev.user_added:
-        print("new channel user: ", ev.original_update.user_id)
+        user_id = ev.original_update.user_id
+        print("new channel user: ", user_id)
+        await sendGreetingMessage(user_id)
+
+
+async def sendGreetingMessage(user_id):
+    await client.send_file(user_id, IMAGE_PATH, caption=GREETING_POST)
 
 
 print("bot started...")
