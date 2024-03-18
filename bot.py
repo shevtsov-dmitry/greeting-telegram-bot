@@ -5,9 +5,10 @@ import logging
 import asyncio
 import itertools
 import random
+from telethon.events.chataction import ChatAction
 from telethon.tl.functions.channels import GetFullChannelRequest
 
-from telethon.tl.types import channels
+from telethon.tl.types import UpdateChannelParticipant, channels
 
 logging.basicConfig(
     format="[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s", level=logging.WARNING
@@ -44,16 +45,12 @@ async def getAllChannelUsers():
     #     print(user.first_name)
 
 
-with client:
-    client.loop.run_until_complete(main())
+@client.on(ChatAction)
+async def main(ev):
+    print(ev)
+    if isinstance(ev.original_update, UpdateChannelParticipant) and ev.user_added:
+        print("new channel user: ", ev.original_update.user_id)
 
-# Start the client and run the fetch_participants function
-# with client:
-#     client.loop.run_until_complete(fetch_participants())
-#     participants = client.loop.run_until_complete(fetch_participants())
-#
-#     # Log the participants
-#     for user_id, user_info in participants.items():
-#         print(f"User ID: {user_id}")
-#         print(user_info)
-#         print("---")
+
+print("bot started...")
+client.run_until_disconnected()
